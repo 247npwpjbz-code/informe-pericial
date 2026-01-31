@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+
+<!-- PWA -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A2A43">
+
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Informe Pericial">
+
+<title>Informe Pericial – Editor Web</title>
+
+<!-- TinyMCE -->
+<script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- html2pdf -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+body {
+    font-family: Calibri, Arial, sans-serif;
+    margin: 20px;
+    background: #f8f9fb;
+}
+
+/* Botones */
+button {
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    margin: 6px 6px 6px 0;
+    border-radius: 4px;
+    border: none;
+    background: #0A2A43;
+    color: white;
+}
+
+/* Encabezado institucional B2-A */
+.encabezado {
+    border: 3px solid #0A2A43;
+    padding: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.encabezado .titulo {
+    text-align: center;
+    width: 100%;
+}
+
+.encabezado h1 {
+    font-size: 20pt;
+    margin: 0;
+    color: #0A2A43;
+    font-weight: bold;
+}
+
+.encabezado h2 {
+    font-size: 13pt;
+    margin: 5px 0 0 0;
+    color: #333;
+}
+
+.sello {
+    width: 160px;
+    height: 160px;
+    border: 2px dashed #0A2A43;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 11pt;
+    color: #0A2A43;
+    font-weight: bold;
+}
+
+/* Área de croquis */
+.espacio-croquis {
+    border: 2px dashed #0A2A43;
+    padding: 20px;
+    text-align: center;
+    margin: 20px 0;
+    font-size: 11pt;
+    color: #0A2A43;
+    font-weight: bold;
+}
+
+/* Tablas técnicas */
+.tabla-tecnica {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10pt;
+    margin-bottom: 20pt;
+}
+
+.tabla-tecnica th {
+    background-color: #0A2A43;
+    color: white;
+    padding: 6pt;
+    border: 1px solid #ccc;
+}
+
+.tabla-tecnica td {
+    padding: 6pt;
+    border: 1px solid #ccc;
+}
+
+/* Pie de página */
+.pie-pagina {
+    text-align: center;
+    font-size: 9pt;
+    color: #666;
+    margin-top: 40px;
+}
+
+/* Numeración automática */
+h1::before {
+    counter-increment: h1counter;
+    content: counter(h1counter) ". ";
+}
+
+h2::before {
+    counter-increment: h2counter;
+    content: counter(h1counter) "." counter(h2counter) " ";
+}
+
+body {
+    counter-reset: h1counter h2counter;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ENCABEZADO INSTITUCIONAL B2-A -->
+<div class="encabezado">
+    
+    <div class="titulo">
+        <h1>INFORME PERICIAL DE INVESTIGACIÓN</h1>
+        <h1>Y RECONSTRUCCIÓN DE ACCIDENTE DE TRÁFICO</h1>
+        <h2>Perito Judicial: Manuel Pedro Martín Suazo</h2>
+    </div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; margin-left:20px;">
+        <div class="sello" id="selloLogo">
+            SELLO / LOGOTIPO
+        </div>
+
+        <button onclick="document.getElementById('selectorLogo').click()" 
+                style="margin-top:10px; background:#0A2A43; color:white;">
+            <i class="fa-solid fa-image"></i> Cargar logo
+        </button>
+
+        <input type="file" id="selectorLogo" accept="image/*" 
+               style="display:none;" onchange="insertarLogo()">
+    </div>
+
+</div>
+
+<!-- ACCIONES RÁPIDAS -->
+<h2>Acciones rápidas</h2>
+
+<button onclick="abrirDireccion()">
+    <i class="fa-solid fa-map-location-dot"></i> Ver dirección en Google Maps
+</button>
+
+<button onclick="abrirCoordenadas()">
+    <i class="fa-solid fa-location-crosshairs"></i> Ver coordenadas en Google Maps
+</button>
+
+<button onclick="geolocalizar()">
+    <i class="fa-solid fa-location-dot"></i> Geolocalización automática
+</button>
+
+<button onclick="exportarPDF()">
+    <i class="fa-solid fa-file-pdf"></i> Exportar a PDF
+</button>
+
+<button onclick="exportarRegistro()">
+    <i class="fa-solid fa-database"></i> Exportar registro
+</button>
+
+<br><br>
+
+<!-- ============================
+     SISTEMA DE REFERENCIA
+=============================== -->
+<script>
+function generarReferencia() {
+    const año = new Date().getFullYear();
+    const clave = "contadorInformes_" + año;
+
+    let contador = localStorage.getItem(clave);
+    if (!contador) contador = 0;
+
+    contador++;
+    localStorage.setItem(clave, contador);
+
+    const numero = String(contador).padStart(4, "0");
+    return `INF-${año}-${numero}`;
+}
+
+let referenciaActual = generarReferencia();
+
+function registrarInforme() {
+    const html = tinymce.get('editor').getContent();
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    const direccion = temp.querySelector('.direccion-accidente')?.innerText.trim() || "No indicada";
+    const lat = temp.querySelector('.latitud')?.innerText.trim() || "No indicada";
+    const lon = temp.querySelector('.longitud')?.innerText.trim() || "No indicada";
+
+    const fecha = new Date().toLocaleString();
+
+    const registro = {
+        referencia: referenciaActual,
+        fecha: fecha,
+        direccion: direccion,
+        latitud: lat,
+        longitud: lon
+    };
+
+    let registros = JSON.parse(localStorage.getItem("registroInformes") || "[]");
+    registros.push(registro);
+    localStorage.setItem("registroInformes", JSON.stringify(registros));
+}
+
+function exportarRegistro() {
+    let registros = JSON.parse(localStorage.getItem("registroInformes") || "[]");
+
+    if (registros.length === 0) {
+        alert("No hay registros para exportar.");
+        return;
+    }
+
+    let texto = "REGISTRO DE INFORMES PERICIALES\n";
+    texto += "----------------------------------------\n\n";
+
+    registros.forEach(r => {
+        texto += `Referencia: ${r.referencia}\n`;
+        texto += `Fecha: ${r.fecha}\n`;
+        texto += `Dirección: ${r.direccion}\n`;
+        texto += `Latitud: ${r.latitud}\n`;
+        texto += `Longitud: ${r.longitud}\n`;
+        texto += "----------------------------------------\n\n";
+    });
+
+    const blob = new Blob([texto], { type: "text/plain" });
+    const enlace = document.createElement("a");
+    enlace.href = URL.createObjectURL(blob);
+    enlace.download = "Registro_Informes.txt";
+    enlace.click();
+}
+</script>
+
+<!-- ============================
+     TINYMCE
+=============================== -->
+<script>
+tinymce.init({
+    selector: '#editor',
+    height: 2000,
+    menubar: true,
+    plugins: 'print preview table lists autoresize',
+    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | table | print preview',
+    setup: function (editor) {
+        editor.on('init', function () {
+            const contenido = editor.getContent();
+            editor.setContent(
+                contenido.replace("{{REFERENCIA}}", referenciaActual)
+            );
+        });
+
+        editor.on('change', function () {
+            registrarInforme();
+        });
+    },
+    content_style: `
+        body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; margin: 2.5cm; }
+        h1 { font-size: 20pt; color: #0A2A43; font-weight: bold; margin-top: 24pt; margin-bottom: 12pt; }
+        h2 { font-size: 14pt; color: #333; font-weight: bold; margin-top: 18pt; margin-bottom: 8pt; }
+        .tabla-tecnica th { background-color: #0A2A43; color: white; }
+        .espacio-croquis { border: 2px dashed #0A2A43; padding: 20px; text-align: center; }
+    `
+});
+</script>
+
+<!-- ============================
+     FUNCIONES GOOGLE MAPS
+=============================== -->
+<script>
+function obtenerContenido(selector) {
+    const html = tinymce.get('editor').getContent();
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    return temp.querySelector(selector)?.innerText.trim() || null;
+}
+
+function abrirDireccion() {
+    const dir = obtenerContenido('.direccion-accidente');
+    if (!dir) return alert("No se encuentra la dirección.");
+    window.open("https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(dir), "_blank");
+}
+
+function abrirCoordenadas() {
+    const lat = obtenerContenido('.latitud');
+    const lon = obtenerContenido('.longitud');
+    if (!lat || !lon) return alert("No se encuentran coordenadas.");
+    window.open(`https://www.google.com/maps?q=${lat},${lon}`, "_blank");
+}
+
+function geolocalizar() {
+    if (!navigator.geolocation) return alert("Geolocalización no soportada.");
+
+    navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude.toFixed(6);
+        const lon = pos.coords.longitude.toFixed(6);
+
+        const editor = tinymce.get('editor');
+        let html = editor.getContent();
+
+        html = html.replace(/<span class="latitud">.*?<\/span>/,
+                            `<span class="latitud">${lat}</span>`);
+        html = html.replace(/<span class="longitud">.*?<\/span>/,
+                            `<span class="longitud">${lon}</span>`);
+
+        editor.setContent(html);
+
+        window.open(`https://www.google.com/maps?q=${lat},${lon}`, "_blank");
+
+    }, () => alert("No se pudo obtener la ubicación."));
+}
+</script>
+
+<!-- ============================
+     EXPORTAR PDF
+=============================== -->
+<script>
+function exportarPDF() {
+    const editor = tinymce.get('editor');
+    const contenido = editor.getContent();
+
+    const temp = document.createElement('div');
+    temp.innerHTML = contenido;
+    temp.style.padding = '20px';
+    document.body.appendChild(temp);
+
+    const opt = {
+        margin: 10,
+        filename: referenciaActual + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(temp).save().then(() => {
+        document.body.removeChild(temp);
+    });
+}
+</script>
+
+<!-- ============================
+     INSERTAR IMÁGENES
+=============================== -->
+<script>
+function insertarImagenEnEditor(idInput) {
+    const input = document.getElementById(idInput);
+    const archivo = input.files[0];
+
+    if (!archivo) return;
+
+    const lector = new FileReader();
+    lector.onload = function(e) {
+        const editor = tinymce.get('editor');
+        editor.insertContent(`<img src="${e.target.result}" style="max-width:100%; margin:10px 0;">`);
+    };
+    lector.readAsDataURL(archivo);
+}
+</script>
+
+<!-- ============================
+     INSERTAR LOGO EN ENCABEZADO
+=============================== -->
+<script>
+function insertarLogo() {
+    const input = document.getElementById('selectorLogo');
+    const archivo = input.files[0];
+
+    if (!archivo) return;
+
+    const lector = new FileReader();
+    lector.onload = function(e) {
+        const sello = document.getElementById('selloLogo');
+        sello.innerHTML = `<img src="${e.target.result}" 
+                                style="max-width:100%; max-height:100%; object-fit:contain;">`;
+    };
+    lector.readAsDataURL(archivo);
+}
+</script>
+
+<!-- ============================
+     CONTENIDO DEL INFORME
+=============================== -->
+
+<textarea id="editor">
+
+<p><b>Referencia del informe:</b> {{REFERENCIA}}</p>
+
+<p><b>Perito Judicial:</b> Manuel Pedro Martín Suazo</p>
+<p><b>Localidad:</b> Llucmajor, Illes Balears</p>
+<p><b>Fecha:</b> <span contenteditable="true">__/__/____</span></p>
+<p><b>N.º de expediente:</b> <span contenteditable="true"></span></p>
+
+<hr>
+
+<h1>Objeto del informe</h1>
+<p contenteditable="true">Descripción del propósito del informe pericial solicitado.</p>
+
+<h1>Documentación analizada</h1>
+<ul>
+    <li><span contenteditable="true">Atestado policial</span></li>
+    <li><span contenteditable="true">Declaraciones de implicados</span></li>
+    <li><span contenteditable="true">Informes médicos</span></li>
+    <li><span contenteditable="true">Reportaje fotográfico</span></li>
+</ul>
+
+<h1>Metodología empleada</h1>
+<p contenteditable="true">
+Se han aplicado técnicas de investigación y reconstrucción de accidentes de tráfico basadas en normativa UNE, análisis de huellas, dinámica vehicular, estudio de daños y correlación mecánica.
+</p>
+
+<h1>Descripción del lugar del accidente</h1>
+
+<h2>Dirección del accidente</h2>
+<p>Dirección: <span class="direccion-accidente" contenteditable="true">Calle Ejemplo 123, Palma</span></p>
+
+<h2>Coordenadas del accidente</h2>
+<p>Latitud: <span class="latitud" contenteditable="true">39.569600</span></p>
+<p>Longitud: <span class="longitud" contenteditable="true">2.650200</span></p>
+
+<h2>Tipo de vía</h2>
+<p contenteditable="true"></p>
+
+<h2>Trazado</h2>
+<p contenteditable="true"></p>
+
+<h2>Señalización</h2>
+<p contenteditable="true"></p>
+
+<h2>Visibilidad</h2>
+<p contenteditable="true"></p>
+
+<h2>Estado del pavimento</h2>
+<p contenteditable="true"></p>
+
+<h2>Condiciones ambientales</h2>
+<p contenteditable="true"></p>
+
+<h1>Vehículos implicados</h1>
+
+<h2>Vehículo A</h2>
+
+<table class="tabla-tecnica">
+<tr>
+    <th>Parámetro</th>
+    <th>Valor</th>
+    <th>Unidad</th>
+    <th>Observaciones</th>
+</tr>
+<tr>
+    <td>Marca</td>
+    <td contenteditable="true"></td>
+    <td>—</td>
+    <td contenteditable="true"></td>
+</tr>
+<tr>
+    <td>Modelo</td>
+    <td contenteditable="true"></td>
+    <td>—</td>
+    <td contenteditable="true"></td>
+</tr>
+<tr>
+    <td>Matrícula</td>
+    <td contenteditable="true"></td>
+    <td>—</td>
+    <td contenteditable="true"></td>
+</tr>
+<tr>
+    <td>Daños</td>
+    <td contenteditable="true"></td>
+    <td>—</td>
+    <td contenteditable="true"></td>
+</tr>
+<tr>
+    <td>Posición final</td>
+    <td contenteditable="true"></td>
+    <td>—</td>
+    <td contenteditable="true"></td>
+</tr>
+</table>
+
+<h2>Vehículo B</h2>
+<p contenteditable="true">(Añadir tabla si procede)</p>
+
+<h1>Análisis técnico del siniestro</h1>
+
+<p contenteditable="true">
+Descripción detallada del análisis técnico, dinámica del accidente, correlación de daños, estudio de huellas, velocidades estimadas, trayectoria de vehículos, etc.
+</p>
+
+<div class="espacio-croquis">
+    <p><b>ESPACIO PARA CROQUIS / FOTOGRAFÍAS</b></p>
+    <input type="file" id="selectorImagen6" accept="image/*" onchange="insertarImagenEnEditor('selectorImagen6')" style="margin-top:10px;">
+</div>
+
+<h1>Reconstrucción del accidente</h1>
+
+<p contenteditable="true">
+Descripción detallada de la reconstrucción del accidente, fases del siniestro, maniobras previas, punto de conflicto, posiciones finales, etc.
+</p>
+
+<div class="espacio-croquis">
+    ESPACIO PARA CROQUIS / FOTOGRAFÍAS
+</div>
+
+
+<h1>Conclusiones</h1>
+<ol>
+    <li><span contenteditable="true">Conclusión 1</span></li>
+    <li><span contenteditable="true">Conclusión 2</span></li>
+    <li><span contenteditable="true">Conclusión 3</span></li>
+</ol>
+
+<h1>Anexos</h1>
+
+<div class="espacio-croquis">
+    <p><b>ESPACIO PARA ANEXOS / FOTOGRAFÍAS / DOCUMENTACIÓN</b></p>
+    <input type="file" id="selectorImagen9" accept="image/*" onchange="insertarImagenEnEditor('selectorImagen9')" style="margin-top:10px;">
+</div>
+
+<h1>Firma del perito</h1>
+<br><br><br>
+<p>______________________________<br>
+<b>Manuel Pedro Martín Suazo</b><br>
+Perito Judicial — Registro 03478</p>
+
+</textarea>
+
+<!-- PIE DE PÁGINA AUTOMÁTICO -->
+<div class="pie-pagina">
+    <p>Referencia: <span id="refPiePagina"></span></p>
+    <p>Generado el: <span id="fechaPiePagina"></span></p>
+</div>
+
+<script>
+// Insertar referencia en el pie de página
+document.getElementById("refPiePagina").innerText = referenciaActual;
+
+// Insertar fecha de generación
+document.getElementById("fechaPiePagina").innerText =
+    new Date().toLocaleString();
+</script>
+
+<!-- REGISTRO SERVICE WORKER PWA -->
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js')
+            .catch(function(err) {
+                console.log('SW registration failed:', err);
+            });
+    });
+}
+</script>
+
+</body>
+</html>
