@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- PWA -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0A2A43">
@@ -15,13 +14,8 @@
 
 <title>Informe Pericial – Editor Web</title>
 
-<!-- TinyMCE -->
 <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
-
-<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<!-- html2pdf -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
@@ -30,8 +24,6 @@ body {
     margin: 20px;
     background: #f8f9fb;
 }
-
-/* Botones */
 button {
     padding: 8px 14px;
     font-size: 13px;
@@ -42,8 +34,6 @@ button {
     background: #0A2A43;
     color: white;
 }
-
-/* Encabezado institucional */
 .encabezado {
     border: 3px solid #0A2A43;
     padding: 20px;
@@ -52,25 +42,21 @@ button {
     justify-content: space-between;
     align-items: center;
 }
-
 .encabezado .titulo {
     text-align: center;
     width: 100%;
 }
-
 .encabezado h1 {
     font-size: 20pt;
     margin: 0;
     color: #0A2A43;
     font-weight: bold;
 }
-
 .encabezado h2 {
     font-size: 13pt;
     margin: 5px 0 0 0;
     color: #333;
 }
-
 .sello {
     width: 160px;
     height: 160px;
@@ -82,8 +68,6 @@ button {
     color: #0A2A43;
     font-weight: bold;
 }
-
-/* Croquis */
 .espacio-croquis {
     border: 2px dashed #0A2A43;
     padding: 20px;
@@ -93,46 +77,36 @@ button {
     color: #0A2A43;
     font-weight: bold;
 }
-
-/* Tablas técnicas */
 .tabla-tecnica {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10pt;
     margin-bottom: 20pt;
 }
-
 .tabla-tecnica th {
     background-color: #0A2A43;
     color: white;
     padding: 6pt;
     border: 1px solid #ccc;
 }
-
 .tabla-tecnica td {
     padding: 6pt;
     border: 1px solid #ccc;
 }
-
-/* Pie de página */
 .pie-pagina {
     text-align: center;
     font-size: 9pt;
     color: #666;
     margin-top: 40px;
 }
-
-/* Numeración automática */
 h1::before {
     counter-increment: h1counter;
     content: counter(h1counter) ". ";
 }
-
 h2::before {
     counter-increment: h2counter;
     content: counter(h1counter) "." counter(h2counter) " ";
 }
-
 body {
     counter-reset: h1counter h2counter;
 }
@@ -141,9 +115,7 @@ body {
 
 <body>
 
-<!-- ENCABEZADO -->
 <div class="encabezado">
-    
     <div class="titulo">
         <h1>INFORME PERICIAL DE INVESTIGACIÓN</h1>
         <h1>Y RECONSTRUCCIÓN DE ACCIDENTE DE TRÁFICO</h1>
@@ -151,48 +123,29 @@ body {
     </div>
 
     <div style="display:flex; flex-direction:column; align-items:center; margin-left:20px;">
-        <div class="sello" id="selloLogo">
-            SELLO / LOGOTIPO
-        </div>
-
-        <button onclick="document.getElementById('selectorLogo').click()" 
-                style="margin-top:10px;">
+        <div class="sello" id="selloLogo">SELLO / LOGOTIPO</div>
+        <button onclick="document.getElementById('selectorLogo').click()" style="margin-top:10px;">
             <i class="fa-solid fa-image"></i> Cargar logo
         </button>
-
-        <input type="file" id="selectorLogo" accept="image/*" 
-               style="display:none;" onchange="insertarLogo()">
+        <input type="file" id="selectorLogo" accept="image/*" style="display:none;" onchange="insertarLogo()">
     </div>
-
 </div>
 
-<!-- ACCIONES RÁPIDAS -->
 <h2>Acciones rápidas</h2>
 
-<button onclick="abrirDireccion()">
-    <i class="fa-solid fa-map-location-dot"></i> Ver dirección en Google Maps
-</button>
-
-<button onclick="abrirCoordenadas()">
-    <i class="fa-solid fa-location-crosshairs"></i> Ver coordenadas en Google Maps
-</button>
-
-<button onclick="geolocalizar()">
-    <i class="fa-solid fa-location-dot"></i> Geolocalización automática
-</button>
-
-<button onclick="exportarPDF()">
-    <i class="fa-solid fa-file-pdf"></i> Exportar a PDF
-</button>
-
-<button onclick="exportarRegistro()">
-    <i class="fa-solid fa-database"></i> Exportar registro
-</button>
+<button onclick="abrirDireccion()"><i class="fa-solid fa-map-location-dot"></i> Ver dirección en Google Maps</button>
+<button onclick="abrirCoordenadas()"><i class="fa-solid fa-location-crosshairs"></i> Ver coordenadas en Google Maps</button>
+<button onclick="geolocalizar()"><i class="fa-solid fa-location-dot"></i> Geolocalización automática</button>
+<button onclick="exportarPDF()"><i class="fa-solid fa-file-pdf"></i> Exportar a PDF</button>
+<button onclick="exportarRegistro()"><i class="fa-solid fa-database"></i> Exportar registro</button>
 
 <br><br>
 
-<!-- EDITOR -->
+<!-- ============================
+     EDITOR
+=============================== -->
 <textarea id="editor">
+
 <p><b>Referencia del informe:</b> {{REFERENCIA}}</p>
 
 <p><b>Perito Judicial:</b> Manuel Pedro Martín Suazo</p>
@@ -250,42 +203,12 @@ Se han aplicado técnicas de investigación y reconstrucción de accidentes de t
 <h2>Vehículo A</h2>
 
 <table class="tabla-tecnica">
-<tr>
-    <th>Parámetro</th>
-    <th>Valor</th>
-    <th>Unidad</th>
-    <th>Observaciones</th>
-</tr>
-<tr>
-    <td>Marca</td>
-    <td contenteditable="true"></td>
-    <td>—</td>
-    <td contenteditable="true"></td>
-</tr>
-<tr>
-    <td>Modelo</td>
-    <td contenteditable="true"></td>
-    <td>—</td>
-    <td contenteditable="true"></td>
-</tr>
-<tr>
-    <td>Matrícula</td>
-    <td contenteditable="true"></td>
-    <td>—</td>
-    <td contenteditable="true"></td>
-</tr>
-<tr>
-    <td>Daños</td>
-    <td contenteditable="true"></td>
-    <td>—</td>
-    <td contenteditable="true"></td>
-</tr>
-<tr>
-    <td>Posición final</td>
-    <td contenteditable="true"></td>
-    <td>—</td>
-    <td contenteditable="true"></td>
-</tr>
+<tr><th>Parámetro</th><th>Valor</th><th>Unidad</th><th>Observaciones</th></tr>
+<tr><td>Marca</td><td contenteditable="true"></td><td>—</td><td contenteditable="true"></td></tr>
+<tr><td>Modelo</td><td contenteditable="true"></td><td>—</td><td contenteditable="true"></td></tr>
+<tr><td>Matrícula</td><td contenteditable="true"></td><td>—</td><td contenteditable="true"></td></tr>
+<tr><td>Daños</td><td contenteditable="true"></td><td>—</td><td contenteditable="true"></td></tr>
+<tr><td>Posición final</td><td contenteditable="true"></td><td>—</td><td contenteditable="true"></td></tr>
 </table>
 
 <h2>Vehículo B</h2>
@@ -308,9 +231,7 @@ Descripción detallada del análisis técnico, dinámica del accidente, correlac
 Descripción detallada de la reconstrucción del accidente, fases del siniestro, maniobras previas, punto de conflicto, posiciones finales, etc.
 </p>
 
-<div class="espacio-croquis">
-    ESPACIO PARA CROQUIS / FOTOGRAFÍAS
-</div>
+<div class="espacio-croquis">ESPACIO PARA CROQUIS / FOTOGRAFÍAS</div>
 
 <h1>Conclusiones</h1>
 <ol>
@@ -326,9 +247,11 @@ Descripción detallada de la reconstrucción del accidente, fases del siniestro,
     <input type="file" id="selectorImagen9" accept="image/*" onchange="insertarImagenEnEditor('selectorImagen9')" style="margin-top:10px;">
 </div>
 
-</textarea>
+</textarea> <!-- ← CIERRE CORRECTO DEL EDITOR -->
 
-<!-- PANEL DE FIRMA FUERA DEL EDITOR -->
+<!-- ============================
+     FIRMA BIOMÉTRICA
+=============================== -->
 <h2>Firma biométrica</h2>
 
 <div id="panelFirma" style="border:1px solid #ccc; padding:15px; margin-top:10px;">
@@ -351,7 +274,6 @@ Descripción detallada de la reconstrucción del accidente, fases del siniestro,
 <b>Manuel Pedro Martín Suazo</b><br>
 Perito Judicial — Registro 03478</p>
 
-<!-- PIE DE PÁGINA -->
 <div class="pie-pagina">
     <p>Referencia: <span id="refPiePagina"></span></p>
     <p>Generado el: <span id="fechaPiePagina"></span></p>
@@ -364,69 +286,16 @@ Perito Judicial — Registro 03478</p>
 function generarReferencia() {
     const año = new Date().getFullYear();
     const clave = "contadorInformes_" + año;
-
     let contador = localStorage.getItem(clave);
     if (!contador) contador = 0;
-
     contador++;
     localStorage.setItem(clave, contador);
-
     const numero = String(contador).padStart(4, "0");
     return `INF-${año}-${numero}`;
 }
-
 let referenciaActual = generarReferencia();
-
-function registrarInforme() {
-    const html = tinymce.get('editor').getContent();
-    const temp = document.createElement('div');
-    temp.innerHTML = html;
-
-    const direccion = temp.querySelector('.direccion-accidente')?.innerText.trim() || "No indicada";
-    const lat = temp.querySelector('.latitud')?.innerText.trim() || "No indicada";
-    const lon = temp.querySelector('.longitud')?.innerText.trim() || "No indicada";
-
-    const fecha = new Date().toLocaleString();
-
-    const registro = {
-        referencia: referenciaActual,
-        fecha: fecha,
-        direccion: direccion,
-        latitud: lat,
-        longitud: lon
-    };
-
-    let registros = JSON.parse(localStorage.getItem("registroInformes") || "[]");
-    registros.push(registro);
-    localStorage.setItem("registroInformes", JSON.stringify(registros));
-}
-
-function exportarRegistro() {
-    let registros = JSON.parse(localStorage.getItem("registroInformes") || "[]");
-
-    if (registros.length === 0) {
-        alert("No hay registros para exportar.");
-        return;
-    }
-
-    let texto = "REGISTRO DE INFORMES PERICIALES\n";
-    texto += "----------------------------------------\n\n";
-
-    registros.forEach(r => {
-        texto += `Referencia: ${r.referencia}\n`;
-        texto += `Fecha: ${r.fecha}\n`;
-        texto += `Dirección: ${r.direccion}\n`;
-        texto += `Latitud: ${r.latitud}\n`;
-        texto += `Longitud: ${r.longitud}\n`;
-        texto += "----------------------------------------\n\n";
-    });
-
-    const blob = new Blob([texto], { type: "text/plain" });
-    const enlace = document.createElement("a");
-    enlace.href = URL.createObjectURL(blob);
-    enlace.download = "Registro_Informes.txt";
-    enlace.click();
-}
+document.getElementById("refPiePagina").innerText = referenciaActual;
+document.getElementById("fechaPiePagina").innerText = new Date().toLocaleString();
 </script>
 
 <!-- ============================
@@ -436,12 +305,10 @@ function exportarRegistro() {
 function exportarPDF() {
     const editor = tinymce.get('editor');
     const contenido = editor.getContent();
-
     const temp = document.createElement('div');
     temp.innerHTML = contenido;
     temp.style.padding = '20px';
     document.body.appendChild(temp);
-
     const opt = {
         margin: 10,
         filename: referenciaActual + '.pdf',
@@ -449,7 +316,6 @@ function exportarPDF() {
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-
     html2pdf().set(opt).from(temp).save().then(() => {
         document.body.removeChild(temp);
     });
@@ -463,9 +329,7 @@ function exportarPDF() {
 function insertarImagenEnEditor(idInput) {
     const input = document.getElementById(idInput);
     const archivo = input.files[0];
-
     if (!archivo) return;
-
     const lector = new FileReader();
     lector.onload = function(e) {
         const editor = tinymce.get('editor');
@@ -476,31 +340,22 @@ function insertarImagenEnEditor(idInput) {
 </script>
 
 <!-- ============================
-     INSERTAR LOGO EN ENCABEZADO
+     LOGO
 =============================== -->
 <script>
 function insertarLogo() {
     const input = document.getElementById('selectorLogo');
     const archivo = input.files[0];
-
     if (!archivo) return;
-
     const lector = new FileReader();
     lector.onload = function(e) {
         const sello = document.getElementById('selloLogo');
-        sello.innerHTML = `<img src="${e.target.result}" 
-                                style="max-width:100%; max-height:100%; object-fit:contain;">`;
+        sello.innerHTML = `<img src="${e.target.result}" style="max-width:100%; max-height:100%; object-fit:contain;">`;
     };
     lector.readAsDataURL(archivo);
 }
 </script>
 
-<!-- PIE DE PÁGINA -->
-<script>
-document.getElementById("refPiePagina").innerText = referenciaActual;
-document.getElementById("fechaPiePagina").innerText =
-    new Date().toLocaleString();
-</script>
 <!-- ============================
      FIRMA BIOMÉTRICA
 =============================== -->
@@ -514,33 +369,28 @@ canvas.addEventListener("pointerdown", e => {
     ctx.beginPath();
     ctx.moveTo(e.offsetX, e.offsetY);
 });
-
 canvas.addEventListener("pointermove", e => {
     if (!dibujando) return;
     ctx.lineTo(e.offsetX, e.offsetY);
     ctx.stroke();
 });
-
 canvas.addEventListener("pointerup", () => dibujando = false);
 canvas.addEventListener("pointerleave", () => dibujando = false);
 
 function limpiarFirma() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
-
 function guardarFirma() {
     const dataURL = canvas.toDataURL("image/png");
     localStorage.setItem("firmaGuardada", dataURL);
     alert("Firma guardada correctamente.");
 }
-
 function insertarFirmaEnInforme() {
     const firma = localStorage.getItem("firmaGuardada");
     if (!firma) {
         alert("No hay firma guardada.");
         return;
     }
-
     const editor = tinymce.get("editor");
     editor.insertContent(
         `<p><b>Firma del perito:</b></p>
@@ -550,7 +400,7 @@ function insertarFirmaEnInforme() {
 </script>
 
 <!-- ============================
-     INICIALIZACIÓN DEL EDITOR
+     INICIALIZACIÓN TINYMCE
 =============================== -->
 <script>
 tinymce.init({
