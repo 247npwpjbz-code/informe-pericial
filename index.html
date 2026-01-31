@@ -501,6 +501,53 @@ document.getElementById("refPiePagina").innerText = referenciaActual;
 document.getElementById("fechaPiePagina").innerText =
     new Date().toLocaleString();
 </script>
+<!-- ============================
+     FIRMA BIOMÉTRICA
+=============================== -->
+<script>
+let canvas = document.getElementById("canvasFirma");
+let ctx = canvas.getContext("2d");
+let dibujando = false;
+
+canvas.addEventListener("pointerdown", e => {
+    dibujando = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+});
+
+canvas.addEventListener("pointermove", e => {
+    if (!dibujando) return;
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+});
+
+canvas.addEventListener("pointerup", () => dibujando = false);
+canvas.addEventListener("pointerleave", () => dibujando = false);
+
+function limpiarFirma() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function guardarFirma() {
+    const dataURL = canvas.toDataURL("image/png");
+    localStorage.setItem("firmaGuardada", dataURL);
+    alert("Firma guardada correctamente.");
+}
+
+function insertarFirmaEnInforme() {
+    const firma = localStorage.getItem("firmaGuardada");
+    if (!firma) {
+        alert("No hay firma guardada.");
+        return;
+    }
+
+    const editor = tinymce.get("editor");
+    editor.insertContent(
+        `<p><b>Firma del perito:</b></p>
+         <img src="${firma}" style="max-width:300px; border:1px solid #000;">`
+    );
+}
+</script>
 
 <!-- ============================
      INICIALIZACIÓN DEL EDITOR
