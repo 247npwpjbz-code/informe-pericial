@@ -597,6 +597,109 @@ if ('serviceWorker' in navigator) {
     });
 }
 </script>
+<script>
+// ===============================
+// FIRMA BIOMÉTRICA (CANVAS)
+// ===============================
 
+const canvas = document.getElementById("canvasFirma");
+const ctx = canvas.getContext("2d");
+
+let dibujando = false;
+let ultimaX = 0;
+let ultimaY = 0;
+
+// Ajuste para iPad (evita scroll al firmar)
+canvas.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
+canvas.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+
+// Función para obtener coordenadas correctas
+function obtenerPosicion(e) {
+    const rect = canvas.getBoundingClientRect();
+
+    if (e.touches) {
+        return {
+            x: e.touches[0].clientX - rect.left,
+            y: e.touches[0].clientY - rect.top
+        };
+    } else {
+        return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+    }
+}
+
+// Iniciar firma
+function iniciarDibujo(e) {
+    dibujando = true;
+    const pos = obtenerPosicion(e);
+    ultimaX = pos.x;
+    ultimaY = pos.y;
+}
+
+// Dibujar
+function dibujar(e) {
+    if (!dibujando) return;
+
+    const pos = obtenerPosicion(e);
+
+    ctx.beginPath();
+    ctx.moveTo(ultimaX, ultimaY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.stroke();
+
+    ultimaX = pos.x;
+    ultimaY = pos.y;
+}
+
+// Finalizar firma
+function finalizarDibujo() {
+    dibujando = false;
+}
+
+// Eventos ratón
+canvas.addEventListener("mousedown", iniciarDibujo);
+canvas.addEventListener("mousemove", dibujar);
+canvas.addEventListener("mouseup", finalizarDibujo);
+canvas.addEventListener("mouseleave", finalizarDibujo);
+
+// Eventos táctiles
+canvas.addEventListener("touchstart", iniciarDibujo);
+canvas.addEventListener("touchmove", dibujar);
+canvas.addEventListener("touchend", finalizarDibujo);
+
+// ===============================
+// FUNCIONES DE FIRMA
+// ===============================
+
+// Limpiar canvas
+function limpiarFirma() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// Guardar firma en localStorage
+function guardarFirma() {
+    const dataURL = canvas.toDataURL("image/png");
+    localStorage.setItem("firmaBiometrica", dataURL);
+    alert("Firma guardada correctamente.");
+}
+
+// Insertar firma en TinyMCE
+function insertarFirmaEnInforme() {
+    const firma = localStorage.getItem("firmaBiometrica");
+
+    if (!firma) {
+        alert("No hay firma guardada.");
+        return;
+    }
+
+    const editor = tinymce.get('editor');
+    editor.insertContent(`<img src="${firma}" style="max-width:300px; margin-top:10px;">`);
+}
+</script>
 </body>
 </html>
