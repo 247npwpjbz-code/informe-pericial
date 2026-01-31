@@ -549,7 +549,22 @@ Descripción detallada de la reconstrucción del accidente, fases del siniestro,
 </div>
 
 <h1>Firma del perito</h1>
-<br><br><br>
+<h2>Firma biométrica</h2>
+
+<div id="panelFirma" style="border:1px solid #ccc; padding:15px; margin-top:10px;">
+    <p><b>Firme aquí con el dedo, Apple Pencil o ratón:</b></p>
+
+    <canvas id="canvasFirma" width="500" height="200" 
+        style="border:1px solid #000; touch-action:none;">
+    </canvas>
+
+    <div style="margin-top:10px;">
+        <button onclick="limpiarFirma()">Limpiar</button>
+        <button onclick="guardarFirma()">Guardar firma</button>
+        <button onclick="insertarFirmaEnInforme()">Insertar firma en el informe</button>
+    </div>
+</div>
+    <br><br><br>
 <p>______________________________<br>
 <b>Manuel Pedro Martín Suazo</b><br>
 Perito Judicial — Registro 03478</p>
