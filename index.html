@@ -43,7 +43,7 @@ button {
     color: white;
 }
 
-/* Encabezado institucional B2-A */
+/* Encabezado institucional */
 .encabezado {
     border: 3px solid #0A2A43;
     padding: 20px;
@@ -83,7 +83,7 @@ button {
     font-weight: bold;
 }
 
-/* Área de croquis */
+/* Croquis */
 .espacio-croquis {
     border: 2px dashed #0A2A43;
     padding: 20px;
@@ -141,7 +141,7 @@ body {
 
 <body>
 
-<!-- ENCABEZADO INSTITUCIONAL B2-A -->
+<!-- ENCABEZADO -->
 <div class="encabezado">
     
     <div class="titulo">
@@ -156,7 +156,7 @@ body {
         </div>
 
         <button onclick="document.getElementById('selectorLogo').click()" 
-                style="margin-top:10px; background:#0A2A43; color:white;">
+                style="margin-top:10px;">
             <i class="fa-solid fa-image"></i> Cargar logo
         </button>
 
@@ -191,8 +191,9 @@ body {
 
 <br><br>
 
-<!-- EDITOR TINYMCE -->
+<!-- EDITOR -->
 <textarea id="editor">
+
 <p><b>Referencia del informe:</b> {{REFERENCIA}}</p>
 
 <p><b>Perito Judicial:</b> Manuel Pedro Martín Suazo</p>
@@ -351,22 +352,158 @@ Descripción detallada de la reconstrucción del accidente, fases del siniestro,
 <b>Manuel Pedro Martín Suazo</b><br>
 Perito Judicial — Registro 03478</p>
 
-<!-- PIE DE PÁGINA AUTOMÁTICO -->
+<!-- PIE DE PÁGINA -->
 <div class="pie-pagina">
     <p>Referencia: <span id="refPiePagina"></span></p>
     <p>Generado el: <span id="fechaPiePagina"></span></p>
 </div>
 
+<!-- ============================
+     SISTEMA DE REFERENCIA
+=============================== -->
 <script>
-// Insertar referencia en el pie de página
-document.getElementById("refPiePagina").innerText = referenciaActual;
+function generarReferencia() {
+    const año = new Date().getFullYear();
+    const clave = "contadorInformes_" + año;
 
-// Insertar fecha de generación
+    let contador = localStorage.getItem(clave);
+    if (!contador) contador = 0;
+
+    contador++;
+    localStorage.setItem(clave, contador);
+
+    const numero = String(contador).padStart(4, "0");
+    return `INF-${año}-${numero}`;
+}
+
+let referenciaActual = generarReferencia();
+
+function registrarInforme() {
+    const html = tinymce.get('editor').getContent();
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    const direccion = temp.querySelector('.direccion-accidente')?.innerText.trim() || "No indicada";
+    const lat = temp.querySelector('.latitud')?.innerText.trim() || "No indicada";
+    const lon = temp.querySelector('.longitud')?.innerText.trim() || "No indicada";
+
+    const fecha = new Date().toLocaleString();
+
+    const registro = {
+        referencia: referenciaActual,
+        fecha: fecha,
+        direccion: direccion,
+        latitud: lat,
+        longitud: lon
+    };
+
+    let registros = JSON.parse(localStorage.getItem("registroInformes") || "[]");
+    registros.push(registro);
+    localStorage.setItem("registroInformes", JSON.stringify(registros));
+}
+
+function exportarRegistro() {
+    let registros = JSON.parse(localStorage.getItem("registroInformes") || "[]");
+
+    if (registros.length === 0) {
+        alert("No hay registros para exportar.");
+        return;
+    }
+
+    let texto = "REGISTRO DE INFORMES PERICIALES\n";
+    texto += "----------------------------------------\n\n";
+
+    registros.forEach(r => {
+        texto += `Referencia: ${r.referencia}\n`;
+        texto += `Fecha: ${r.fecha}\n`;
+        texto += `Dirección: ${r.direccion}\n`;
+        texto += `Latitud: ${r.latitud}\n`;
+        texto += `Longitud: ${r.longitud}\n`;
+        texto += "----------------------------------------\n\n";
+    });
+
+    const blob = new Blob([texto], { type: "text/plain" });
+    const enlace = document.createElement("a");
+    enlace.href = URL.createObjectURL(blob);
+    enlace.download = "Registro_Informes.txt";
+    enlace.click();
+}
+</script>
+
+<!-- ============================
+     EXPORTAR PDF
+=============================== -->
+<script>
+function exportarPDF() {
+    const editor = tinymce.get('editor');
+    const contenido = editor.getContent();
+
+    const temp = document.createElement('div');
+    temp.innerHTML = contenido;
+    temp.style.padding = '20px';
+    document.body.appendChild(temp);
+
+    const opt = {
+        margin: 10,
+        filename: referenciaActual + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(temp).save().then(() => {
+        document.body.removeChild(temp);
+    });
+}
+</script>
+
+<!-- ============================
+     INSERTAR IMÁGENES
+=============================== -->
+<script>
+function insertarImagenEnEditor(idInput) {
+    const input = document.getElementById(idInput);
+    const archivo = input.files[0];
+
+    if (!archivo) return;
+
+    const lector = new FileReader();
+    lector.onload = function(e) {
+        const editor = tinymce.get('editor');
+        editor.insertContent(`<img src="${e.target.result}" style="max-width:100%; margin:10px 0;">`);
+    };
+    lector.readAsDataURL(archivo);
+}
+</script>
+
+<!-- ============================
+     INSERTAR LOGO EN ENCABEZADO
+=============================== -->
+<script>
+function insertarLogo() {
+    const input = document.getElementById('selectorLogo');
+    const archivo = input.files[0];
+
+    if (!archivo) return;
+
+    const lector = new FileReader();
+    lector.onload = function(e) {
+        const sello = document.getElementById('selloLogo');
+        sello.innerHTML = `<img src="${e.target.result}" 
+                                style="max-width:100%; max-height:100%; object-fit:contain;">`;
+    };
+    lector.readAsDataURL(archivo);
+}
+</script>
+
+<!-- PIE DE PÁGINA -->
+<script>
+document.getElementById("refPiePagina").innerText = referenciaActual;
 document.getElementById("fechaPiePagina").innerText =
     new Date().toLocaleString();
 </script>
 
-<!-- REGISTRO SERVICE WORKER PWA -->
+<!-- SERVICE WORKER -->
 <script>
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
@@ -406,6 +543,7 @@ function obtenerPosicion(e) {
     }
 }
 
+function iniciarDibujo(e)
 function iniciarDibujo(e) {
     dibujando = true;
     const pos = obtenerPosicion(e);
@@ -463,6 +601,81 @@ function insertarFirmaEnInforme() {
 
     const editor = tinymce.get('editor');
     editor.insertContent(`<img src="${firma}" style="max-width:300px; margin-top:10px;">`);
+}
+</script>
+
+<!-- TINYMCE INIT -->
+<script>
+tinymce.init({
+    selector: '#editor',
+    height: 2000,
+    menubar: true,
+    plugins: 'print preview table lists autoresize',
+    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | table | print preview',
+    setup: function (editor) {
+        editor.on('init', function () {
+            const contenido = editor.getContent();
+            editor.setContent(
+                contenido.replace("{{REFERENCIA}}", referenciaActual)
+            );
+        });
+
+        editor.on('change', function () {
+            registrarInforme();
+        });
+    },
+    content_style: `
+        body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; margin: 2.5cm; }
+        h1 { font-size: 20pt; color: #0A2A43; font-weight: bold; margin-top: 24pt; margin-bottom: 12pt; }
+        h2 { font-size: 14pt; color: #333; font-weight: bold; margin-top: 18pt; margin-bottom: 8pt; }
+        .tabla-tecnica th { background-color: #0A2A43; color: white; }
+        .espacio-croquis { border: 2px dashed #0A2A43; padding: 20px; text-align: center; }
+    `
+});
+</script>
+
+<!-- FUNCIONES GOOGLE MAPS -->
+<script>
+function obtenerContenido(selector) {
+    const html = tinymce.get('editor').getContent();
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    return temp.querySelector(selector)?.innerText.trim() || null;
+}
+
+function abrirDireccion() {
+    const dir = obtenerContenido('.direccion-accidente');
+    if (!dir) return alert("No se encuentra la dirección.");
+    window.open("https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(dir), "_blank");
+}
+
+function abrirCoordenadas() {
+    const lat = obtenerContenido('.latitud');
+    const lon = obtenerContenido('.longitud');
+    if (!lat || !lon) return alert("No se encuentran coordenadas.");
+    window.open(`https://www.google.com/maps?q=${lat},${lon}`, "_blank");
+}
+
+function geolocalizar() {
+    if (!navigator.geolocation) return alert("Geolocalización no soportada.");
+
+    navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude.toFixed(6);
+        const lon = pos.coords.longitude.toFixed(6);
+
+        const editor = tinymce.get('editor');
+        let html = editor.getContent();
+
+        html = html.replace(/<span class="latitud">.*?<\/span>/,
+                            `<span class="latitud">${lat}</span>`);
+        html = html.replace(/<span class="longitud">.*?<\/span>/,
+                            `<span class="longitud">${lon}</span>`);
+
+        editor.setContent(html);
+
+        window.open(`https://www.google.com/maps?q=${lat},${lon}`, "_blank");
+
+    }, () => alert("No se pudo obtener la ubicación."));
 }
 </script>
 
