@@ -193,7 +193,6 @@ body {
 
 <!-- EDITOR -->
 <textarea id="editor">
-
 <p><b>Referencia del informe:</b> {{REFERENCIA}}</p>
 
 <p><b>Perito Judicial:</b> Manuel Pedro Martín Suazo</p>
@@ -357,7 +356,6 @@ Perito Judicial — Registro 03478</p>
     <p>Referencia: <span id="refPiePagina"></span></p>
     <p>Generado el: <span id="fechaPiePagina"></span></p>
 </div>
-
 <!-- ============================
      SISTEMA DE REFERENCIA
 =============================== -->
@@ -531,7 +529,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function obtenerPosicion(e) {
         const rect = canvas.getBoundingClientRect();
 
-              if (e.touches) {
+        if (e.touches) {
             return {
                 x: e.touches[0].clientX - rect.left,
                 y: e.touches[0].clientY - rect.top
