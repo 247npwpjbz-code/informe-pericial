@@ -302,29 +302,10 @@ button {
     </div>
 </div>
 
-<!-- ============================
-     ACCIONES RÁPIDAS
-=============================== -->
-<h2>Acciones rápidas</h2>
-
 <button onclick="abrirDireccion()">
-    <i class="fa-solid fa-map-location-dot"></i> Ver dirección
-</button>
-
 <button onclick="abrirCoordenadas()">
-    <i class="fa-solid fa-location-crosshairs"></i> Ver coordenadas
-</button>
+<button onclick="geolocalizar()">
 
-<button onclick="geolocalizarInSitu()">
-    <i class="fa-solid fa-location-dot"></i> Geolocalizar in situ
-</button>
-
-<button onclick="exportarPDF()">
-    <i class="fa-solid fa-file-pdf"></i> Exportar PDF
-</button>
-
-
-<br><br>
 
 <!-- ============================
      EDITOR
@@ -700,6 +681,7 @@ tinymce.init({
 });
 </script>
 <script>
+<script>
 function abrirDireccion() {
     const direccion = document.querySelector(".direccion-accidente").innerText.trim();
     if (!direccion) {
@@ -722,7 +704,42 @@ function abrirCoordenadas() {
     const url = `https://www.google.com/maps?q=${lat},${lon}`;
     window.open(url, "_blank");
 }
+
+function geolocalizar() {
+    if (!navigator.geolocation) {
+        alert("La geolocalización no está soportada en este dispositivo.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude.toFixed(6);
+        const lon = pos.coords.longitude.toFixed(6);
+
+        document.querySelector(".latitud").innerText = lat;
+        document.querySelector(".longitud").innerText = lon;
+
+        try {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+
+            if (data && data.display_name) {
+                document.querySelector(".direccion-accidente").innerText = data.display_name;
+            } else {
+                document.querySelector(".direccion-accidente").innerText = "Dirección no disponible";
+            }
+        } catch (e) {
+            document.querySelector(".direccion-accidente").innerText = "Dirección no disponible";
+        }
+
+        alert("Geolocalización insertada correctamente.");
+    },
+    () => {
+        alert("No se pudo obtener la ubicación.");
+    });
+}
 </script>
+
 
 </body>
 </html>
