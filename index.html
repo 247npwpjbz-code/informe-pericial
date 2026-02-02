@@ -2,28 +2,72 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0A2A43">
-
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Informe Pericial">
 
 <title>Informe Pericial – Editor Web</title>
 
+<!-- Librerías -->
 <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
+/* === AJUSTE GENERAL === */
 body {
     font-family: Calibri, Arial, sans-serif;
-    margin: 20px;
+    margin-left: 215px; /* Barra lateral 200px + margen 15px */
+    margin-top: 20px;
     background: #f8f9fb;
 }
+
+/* === BARRA LATERAL IZQUIERDA === */
+#barra-lateral {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 180px;
+    height: 100vh;
+    background: #0A2A43;
+    color: white;
+    padding: 12px;
+    overflow-y: auto;
+    box-shadow: 3px 0 6px rgba(0,0,0,0.3);
+    z-index: 9999;
+}
+
+#barra-lateral h3 {
+    margin-top: 0;
+    font-size: 16pt;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#barra-lateral label {
+    font-size: 11pt;
+    margin-top: 10px;
+    display: block;
+}
+
+#barra-lateral select {
+    width: 100%;
+    padding: 6px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+#barra-lateral button {
+    width: 100%;
+    background: #1a4d6c;
+    margin-bottom: 20px;
+    padding: 8px;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* === BOTONES GENERALES === */
 button {
     padding: 8px 14px;
     font-size: 13px;
@@ -34,6 +78,8 @@ button {
     background: #0A2A43;
     color: white;
 }
+
+/* === ENCABEZADO === */
 .encabezado {
     border: 3px solid #0A2A43;
     padding: 20px;
@@ -42,21 +88,25 @@ button {
     justify-content: space-between;
     align-items: center;
 }
+
 .encabezado .titulo {
     text-align: center;
     width: 100%;
 }
+
 .encabezado h1 {
     font-size: 20pt;
     margin: 0;
     color: #0A2A43;
     font-weight: bold;
 }
+
 .encabezado h2 {
     font-size: 13pt;
     margin: 5px 0 0 0;
     color: #333;
 }
+
 .sello {
     width: 160px;
     height: 160px;
@@ -68,6 +118,8 @@ button {
     color: #0A2A43;
     font-weight: bold;
 }
+
+/* === CROQUIS === */
 .espacio-croquis {
     border: 2px dashed #0A2A43;
     padding: 20px;
@@ -77,44 +129,163 @@ button {
     color: #0A2A43;
     font-weight: bold;
 }
+
+/* === TABLAS === */
 .tabla-tecnica {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10pt;
     margin-bottom: 20pt;
 }
+
 .tabla-tecnica th {
     background-color: #0A2A43;
     color: white;
     padding: 6pt;
     border: 1px solid #ccc;
 }
+
 .tabla-tecnica td {
     padding: 6pt;
     border: 1px solid #ccc;
 }
+
+/* === PIE === */
 .pie-pagina {
     text-align: center;
     font-size: 9pt;
     color: #666;
     margin-top: 40px;
 }
-h1::before {
-    counter-increment: h1counter;
-    content: counter(h1counter) ". ";
-}
-h2::before {
-    counter-increment: h2counter;
-    content: counter(h1counter) "." counter(h2counter) " ";
-}
-body {
-    counter-reset: h1counter h2counter;
+
+.pie-logo {
+    text-align: right;
+    margin-top: 10px;
 }
 </style>
 </head>
 
 <body>
 
+<!-- ============================
+     BARRA LATERAL IZQUIERDA
+=============================== -->
+<div id="barra-lateral">
+    <h3>Menús del informe</h3>
+
+    <label>Tipo de informe</label>
+    <select id="menuInforme">
+        <option value="">Seleccione…</option>
+        <option>Informe pericial</option>
+        <option>Ampliación de informe</option>
+        <option>Ratificación</option>
+        <option>Contrapericial</option>
+        <option>Informe técnico</option>
+    </select>
+    <button onclick="insertarDesdeMenu('menuInforme')">Insertar</button>
+
+    <label>Tipo de accidente</label>
+    <select id="menuAccidente">
+        <option value="">Seleccione…</option>
+        <option>Colisión fronto–frontal</option>
+        <option>Colisión fronto–lateral</option>
+        <option>Colisión por alcance</option>
+        <option>Atropello</option>
+        <option>Salida de vía</option>
+        <option>Vuelco</option>
+        <option>Colisión múltiple</option>
+        <option>Otro</option>
+    </select>
+    <button onclick="insertarDesdeMenu('menuAccidente')">Insertar</button>
+
+    <label>Vehículo A – Tipo</label>
+    <select id="menuVehiculoA">
+        <option value="">Seleccione…</option>
+        <option>Turismo</option>
+        <option>Motocicleta</option>
+        <option>Furgón</option>
+        <option>Camión</option>
+        <option>Autobús</option>
+        <option>Bicicleta</option>
+        <option>Patinete</option>
+        <option>Otro</option>
+    </select>
+    <button onclick="insertarDesdeMenu('menuVehiculoA')">Insertar</button>
+
+    <label>Vehículo B – Tipo</label>
+    <select id="menuVehiculoB">
+        <option value="">Seleccione…</option>
+        <option>Turismo</option>
+        <option>Motocicleta</option>
+        <option>Furgón</option>
+        <option>Camión</option>
+        <option>Autobús</option>
+        <option>Bicicleta</option>
+        <option>Patinete</option>
+        <option>Otro</option>
+    </select>
+    <button onclick="insertarDesdeMenu('menuVehiculoB')">Insertar</button>
+
+    <label>Condiciones de la vía</label>
+    <select id="menuVia">
+        <option value="">Seleccione…</option>
+        <option>Recta</option>
+        <option>Curva</option>
+        <option>Intersección</option>
+        <option>Glorieta</option>
+        <option>Cambio de rasante</option>
+        <option>Túnel</option>
+        <option>Incorporación</option>
+        <option>Otro</option>
+    </select>
+    <button onclick="insertarDesdeMenu('menuVia')">Insertar</button>
+
+    <label>Estado del pavimento</label>
+    <select id="menuPavimento">
+        <option value="">Seleccione…</option>
+        <option>Seco</option>
+        <option>Húmedo</option>
+        <option>Mojado</option>
+        <option>Aceite</option>
+        <option>Grava</option>
+        <option>Hielo</option>
+        <option>Otro</option>
+    </select>
+    <button onclick="insertarDesdeMenu('menuPavimento')">Insertar</button>
+
+    <label>Visibilidad</label>
+    <select id="menuVisibilidad">
+        <option value="">Seleccione…</option>
+        <option>Buena</option>
+        <option>Media</option>
+        <option>Mala</option>
+        <option>Noche</option>
+        <option>Lluvia</option>
+        <option>Niebla</option>
+        <option>Deslumbramiento</option>
+    </select>
+    <button onclick="insertarDesdeMenu('menuVisibilidad')">Insertar</button>
+
+    <label>Señalización que afecta al accidente</label>
+    <select id="menuSenalizacion">
+        <option value="">Seleccione…</option>
+        <option>Señalización Horizontal</option>
+        <option>Señalización Vertical de Peligro</option>
+        <option>Señalización Vertical Informativa</option>
+        <option>Señalización Lumínica</option>
+        <option>Señalización por Agentes</option>
+        <option>Balizamiento</option>
+        <option>Obras</option>
+        <option>Otros</option>
+    </select>
+    <button onclick="insertarDesdeMenu('menuSenalizacion')">Insertar</button>
+
+    <button onclick="geolocalizar()">Geolocalizar in situ</button>
+</div>
+
+<!-- ============================
+     ENCABEZADO
+=============================== -->
 <div class="encabezado">
     <div class="titulo">
         <h1>INFORME PERICIAL DE INVESTIGACIÓN</h1>
@@ -123,7 +294,7 @@ body {
     </div>
 
     <div style="display:flex; flex-direction:column; align-items:center; margin-left:20px;">
-        <div class="sello" id="selloLogo">SELLO / LOGOTIPO</div>
+        <div class="sello" id="selloLogo">LOGOTIPO</div>
         <button onclick="document.getElementById('selectorLogo').click()" style="margin-top:10px;">
             <i class="fa-solid fa-image"></i> Cargar logo
         </button>
@@ -131,13 +302,27 @@ body {
     </div>
 </div>
 
+<!-- ============================
+     ACCIONES RÁPIDAS
+=============================== -->
 <h2>Acciones rápidas</h2>
 
-<button onclick="abrirDireccion()"><i class="fa-solid fa-map-location-dot"></i> Ver dirección en Google Maps</button>
-<button onclick="abrirCoordenadas()"><i class="fa-solid fa-location-crosshairs"></i> Ver coordenadas en Google Maps</button>
-<button onclick="geolocalizar()"><i class="fa-solid fa-location-dot"></i> Geolocalización automática</button>
-<button onclick="exportarPDF()"><i class="fa-solid fa-file-pdf"></i> Exportar a PDF</button>
-<button onclick="exportarRegistro()"><i class="fa-solid fa-database"></i> Exportar registro</button>
+<button onclick="abrirDireccion()">
+    <i class="fa-solid fa-map-location-dot"></i> Ver dirección
+</button>
+
+<button onclick="abrirCoordenadas()">
+    <i class="fa-solid fa-location-crosshairs"></i> Ver coordenadas
+</button>
+
+<button onclick="geolocalizarInSitu()">
+    <i class="fa-solid fa-location-dot"></i> Geolocalizar in situ
+</button>
+
+<button onclick="exportarPDF()">
+    <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+</button>
+
 
 <br><br>
 
@@ -247,7 +432,7 @@ Descripción detallada de la reconstrucción del accidente, fases del siniestro,
     <input type="file" id="selectorImagen9" accept="image/*" onchange="insertarImagenEnEditor('selectorImagen9')" style="margin-top:10px;">
 </div>
 
-</textarea> <!-- ← CIERRE CORRECTO DEL EDITOR -->
+</textarea>
 
 <!-- ============================
      FIRMA BIOMÉTRICA
@@ -274,9 +459,16 @@ Descripción detallada de la reconstrucción del accidente, fases del siniestro,
 <b>Manuel Pedro Martín Suazo</b><br>
 Perito Judicial — Registro 03478</p>
 
+<!-- ============================
+     PIE DE PÁGINA
+=============================== -->
 <div class="pie-pagina">
     <p>Referencia: <span id="refPiePagina"></span></p>
     <p>Generado el: <span id="fechaPiePagina"></span></p>
+
+    <div class="pie-logo">
+        <img src="img/logo-aspejure.png" style="width:140px;">
+    </div>
 </div>
 
 <!-- ============================
@@ -293,9 +485,22 @@ function generarReferencia() {
     const numero = String(contador).padStart(4, "0");
     return `INF-${año}-${numero}`;
 }
+
 let referenciaActual = generarReferencia();
 document.getElementById("refPiePagina").innerText = referenciaActual;
 document.getElementById("fechaPiePagina").innerText = new Date().toLocaleString();
+
+// Sustituir {{REFERENCIA}} dentro del editor cuando TinyMCE esté listo
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        const ed = tinymce.get("editor");
+        if (ed) {
+            let contenido = ed.getContent();
+            contenido = contenido.replace("{{REFERENCIA}}", referenciaActual);
+            ed.setContent(contenido);
+        }
+    }, 800);
+});
 </script>
 
 <!-- ============================
@@ -340,7 +545,7 @@ function insertarImagenEnEditor(idInput) {
 </script>
 
 <!-- ============================
-     LOGO
+     LOGO PERSONAL
 =============================== -->
 <script>
 function insertarLogo() {
@@ -400,6 +605,88 @@ function insertarFirmaEnInforme() {
 </script>
 
 <!-- ============================
+     MENÚS DESPLEGABLES → INSERTAR EN EDITOR
+=============================== -->
+<script>
+function insertarDesdeMenu(idMenu) {
+    const valor = document.getElementById(idMenu).value;
+    if (!valor) return;
+
+    const editor = tinymce.get("editor");
+    editor.insertContent(`<p><b>${valor}</b></p>`);
+}
+</script>
+
+<!-- ============================
+     GEOLOCALIZACIÓN Y GOOGLE MAPS
+=============================== -->
+<script>
+function geolocalizar() {
+    if (!navigator.geolocation) {
+        alert("La geolocalización no está soportada en este dispositivo.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude.toFixed(6);
+        const lon = pos.coords.longitude.toFixed(6);
+
+        const latSpan = document.querySelector(".latitud");
+        const lonSpan = document.querySelector(".longitud");
+        const dirSpan = document.querySelector(".direccion-accidente");
+
+        if (latSpan) latSpan.innerText = lat;
+        if (lonSpan) lonSpan.innerText = lon;
+
+        try {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+
+            if (data && data.display_name && dirSpan) {
+                dirSpan.innerText = data.display_name;
+            } else if (dirSpan) {
+                dirSpan.innerText = "Dirección no disponible";
+            }
+        } catch (e) {
+            if (dirSpan) dirSpan.innerText = "Dirección no disponible";
+        }
+
+        alert("Geolocalización insertada correctamente.");
+    },
+    (err) => {
+        alert("No se pudo obtener la ubicación.");
+    });
+}
+
+function abrirDireccion() {
+    const dirSpan = document.querySelector(".direccion-accidente");
+    const direccion = dirSpan ? dirSpan.innerText.trim() : "";
+    if (!direccion) {
+        alert("No hay dirección disponible.");
+        return;
+    }
+    const url = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(direccion);
+    window.open(url, "_blank");
+}
+
+function abrirCoordenadas() {
+    const latSpan = document.querySelector(".latitud");
+    const lonSpan = document.querySelector(".longitud");
+    const lat = latSpan ? latSpan.innerText.trim() : "";
+    const lon = lonSpan ? lonSpan.innerText.trim() : "";
+
+    if (!lat || !lon) {
+        alert("No hay coordenadas disponibles.");
+        return;
+    }
+
+    const url = `https://www.google.com/maps?q=${lat},${lon}`;
+    window.open(url, "_blank");
+}
+</script>
+
+<!-- ============================
      INICIALIZACIÓN TINYMCE
 =============================== -->
 <script>
@@ -411,6 +698,30 @@ tinymce.init({
     menubar: false,
     content_style: "body { font-family: Calibri, Arial, sans-serif; font-size: 12pt; }"
 });
+</script>
+<script>
+function abrirDireccion() {
+    const direccion = document.querySelector(".direccion-accidente").innerText.trim();
+    if (!direccion) {
+        alert("No hay dirección disponible.");
+        return;
+    }
+    const url = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(direccion);
+    window.open(url, "_blank");
+}
+
+function abrirCoordenadas() {
+    const lat = document.querySelector(".latitud").innerText.trim();
+    const lon = document.querySelector(".longitud").innerText.trim();
+
+    if (!lat || !lon) {
+        alert("No hay coordenadas disponibles.");
+        return;
+    }
+
+    const url = `https://www.google.com/maps?q=${lat},${lon}`;
+    window.open(url, "_blank");
+}
 </script>
 
 </body>
