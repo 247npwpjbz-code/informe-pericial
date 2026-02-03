@@ -1,560 +1,416 @@
-
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Pericial</title>
 
-<title>Informe Pericial – Editor Web</title>
+    <!-- Estilo institucional azul/gris -->
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f6f9;
+        }
 
-<!-- Librerías -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        /* Sidebar institucional */
+        #sidebar {
+            width: 260px;
+            background-color: #1f3c88; /* azul institucional */
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding-top: 20px;
+            box-shadow: 3px 0 6px rgba(0,0,0,0.2);
+        }
 
-<style>
-/* === AJUSTE GENERAL === */
-body {
-    font-family: Calibri, Arial, sans-serif;
-    margin-left: 215px;
-    margin-top: 20px;
-    background: #f8f9fb;
-}
+        #sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
 
-/* === BARRA LATERAL IZQUIERDA === */
-#barra-lateral {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 180px;
-    height: 100vh;
-    background: #0A2A43;
-    color: white;
-    padding: 12px;
-    overflow-y: auto;
-    box-shadow: 3px 0 6px rgba(0,0,0,0.3);
-    z-index: 9999;
-}
+        .menu-btn {
+            width: 90%;
+            margin: 10px auto;
+            padding: 12px;
+            background-color: #2e4a9e;
+            border: none;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: left;
+        }
 
-#barra-lateral h3 {
-    margin-top: 0;
-    font-size: 16pt;
-    text-align: center;
-    margin-bottom: 20px;
-}
+        .menu-btn:hover {
+            background-color: #3c5cc4;
+        }
 
-#barra-lateral label {
-    font-size: 11pt;
-    margin-top: 10px;
-    display: block;
-}
+        /* Área principal */
+        #main {
+            margin-left: 280px;
+            padding: 20px;
+        }
 
-#barra-lateral select {
-    width: 100%;
-    padding: 6px;
-    margin-top: 5px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-}
+        /* Contenedor de fotos y croquis */
+        .media-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border: 1px solid #d0d4db;
+            border-radius: 6px;
+        }
 
-#barra-lateral button {
-    width: 100%;
-    background: #1a4d6c;
-    margin-bottom: 10px;
-    padding: 8px;
-    border: none;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-}
+        footer {
+            margin-top: 40px;
+            padding: 15px;
+            text-align: center;
+            background-color: #1f3c88;
+            color: white;
+            border-radius: 6px;
+        }
+    </style>
 
-/* === BOTONES GENERALES === */
-button {
-    padding: 8px 14px;
-    font-size: 13px;
-    cursor: pointer;
-    margin: 6px 6px 6px 0;
-    border-radius: 4px;
-    border: none;
-    background: #0A2A43;
-    color: white;
-}
-
-/* === ENCABEZADO === */
-.encabezado {
-    border: 3px solid #0A2A43;
-    padding: 20px;
-    margin-bottom: 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.encabezado .titulo {
-    text-align: center;
-    width: 100%;
-}
-
-.encabezado h1 {
-    font-size: 18pt;
-    margin: 0;
-    color: #0A2A43;
-    font-weight: bold;
-}
-
-.encabezado h2 {
-    font-size: 13pt;
-    margin: 5px 0 0 0;
-    color: #333;
-}
-
-.sello {
-    width: 160px;
-    height: 160px;
-    border: 2px dashed #0A2A43;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 11pt;
-    color: #0A2A43;
-    font-weight: bold;
-}
-
-/* === CROQUIS === */
-.espacio-croquis {
-    border: 2px dashed #0A2A43;
-    padding: 20px;
-    text-align: center;
-    margin: 20px 0;
-    font-size: 11pt;
-    color: #0A2A43;
-    font-weight: bold;
-}
-
-/* === TABLAS === */
-.tabla-tecnica {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10pt;
-    margin-bottom: 20pt;
-}
-
-.tabla-tecnica th {
-    background-color: #0A2A43;
-    color: white;
-    padding: 6pt;
-    border: 1px solid #ccc;
-}
-
-.tabla-tecnica td {
-    padding: 6pt;
-    border: 1px solid #ccc;
-}
-
-/* === PIE === */
-.pie-pagina {
-    text-align: center;
-    font-size: 9pt;
-    color: #666;
-    margin-top: 40px;
-}
-
-.pie-logo {
-    text-align: right;
-    margin-top: 10px;
-}
-</style>
+    <!-- TinyMCE -->
+    <script src="https://cdn.tiny.cloud/1/your-api-key/tinymce/6/tinymce.min.js" <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+="origin"></script>
 </head>
-
 <body>
+<!-- Sidebar institucional -->
+<div id="sidebar">
+    <h2>Menú del Informe</h2>
 
-<!-- BARRA LATERAL CON MENÚS ANTIGUOS -->
-<div id="barra-lateral">
-    <h3>Menús del informe</h3>
+    <button class="menu-btn" onclick="insertarTipoInforme()">Tipo de Informe</button>
+    <button class="menu-btn" onclick="insertarTipoAccidente()">Tipo de Accidente</button>
+    <button class="menu-btn" onclick="insertarVehiculoA()">Vehículo A</button>
+    <button class="menu-btn" onclick="insertarVehiculoB()">Vehículo B</button>
+    <button class="menu-btn" onclick="insertarCondicionesVia()">Condiciones de la vía</button>
+    <button class="menu-btn" onclick="insertarEstadoPavimento()">Estado del pavimento</button>
+    <button class="menu-btn" onclick="insertarVisibilidad()">Visibilidad</button>
+    <button class="menu-btn" onclick="insertarSenalizacion()">Señalización que afecta al accidente</button>
 
-    <label>Tipo de informe</label>
-    <select id="menuInforme">
-        <option value="">Seleccione…</option>
-        <option>Informe pericial</option>
-        <option>Ampliación de informe</option>
-        <option>Ratificación</option>
-        <option>Contrapericial</option>
-        <option>Informe técnico</option>
-    </select>
-    <button onclick="insertarDesdeMenu('menuInforme')">Insertar</button>
-
-    <label>Tipo de accidente</label>
-    <select id="menuAccidente">
-        <option value="">Seleccione…</option>
-        <option>Colisión fronto–frontal</option>
-        <option>Colisión fronto–lateral</option>
-        <option>Colisión por alcance</option>
-        <option>Atropello</option>
-        <option>Salida de vía</option>
-        <option>Vuelco</option>
-        <option>Colisión múltiple</option>
-        <option>Otro</option>
-    </select>
-    <button onclick="insertarDesdeMenu('menuAccidente')">Insertar</button>
-
-    <label>Vehículo A – Tipo</label>
-    <select id="menuVehiculoA">
-        <option value="">Seleccione…</option>
-        <option>Turismo</option>
-        <option>Motocicleta</option>
-        <option>Furgón</option>
-        <option>Camión</option>
-        <option>Autobús</option>
-        <option>Bicicleta</option>
-        <option>Patinete</option>
-        <option>Otro</option>
-    </select>
-    <button onclick="insertarDesdeMenu('menuVehiculoA')">Insertar</button>
-
-    <label>Vehículo B – Tipo</label>
-    <select id="menuVehiculoB">
-        <option value="">Seleccione…</option>
-        <option>Turismo</option>
-        <option>Motocicleta</option>
-        <option>Furgón</option>
-        <option>Camión</option>
-        <option>Autobús</option>
-        <option>Bicicleta</option>
-        <option>Patinete</option>
-        <option>Otro</option>
-    </select>
-    <button onclick="insertarDesdeMenu('menuVehiculoB')">Insertar</button>
-
-    <label>Condiciones de la vía</label>
-    <select id="menuVia">
-        <option value="">Seleccione…</option>
-        <option>Recta</option>
-        <option>Curva</option>
-        <option>Intersección</option>
-        <option>Glorieta</option>
-        <option>Cambio de rasante</option>
-        <option>Túnel</option>
-        <option>Incorporación</option>
-        <option>Otro</option>
-    </select>
-    <button onclick="insertarDesdeMenu('menuVia')">Insertar</button>
-
-    <label>Estado del pavimento</label>
-    <select id="menuPavimento">
-        <option value="">Seleccione…</option>
-        <option>Seco</option>
-        <option>Húmedo</option>
-        <option>Mojado</option>
-        <option>Aceite</option>
-        <option>Grava</option>
-        <option>Hielo</option>
-        <option>Otro</option>
-    </select>
-    <button onclick="insertarDesdeMenu('menuPavimento')">Insertar</button>
-
-    <label>Visibilidad</label>
-    <select id="menuVisibilidad">
-        <option value="">Seleccione…</option>
-        <option>Buena</option>
-        <option>Media</option>
-        <option>Mala</option>
-        <option>Noche</option>
-        <option>Lluvia</option>
-        <option>Niebla</option>
-        <option>Deslumbramiento</option>
-    </select>
-    <button onclick="insertarDesdeMenu('menuVisibilidad')">Insertar</button>
-
-    <label>Señalización que afecta al accidente</label>
-    <select id="menuSenalizacion">
-        <option value="">Seleccione…</option>
-        <option>Señalización Horizontal</option>
-        <option>Señalización Vertical de Peligro</option>
-        <option>Señalización Vertical Informativa</option>
-        <option>Señalización Lumínica</option>
-        <option>Señalización por Agentes</option>
-        <option>Balizamiento</option>
-        <option>Obras</option>
-        <option>Otros</option>
-    </select>
-    <button onclick="insertarDesdeMenu('menuSenalizacion')">Insertar</button>
-
-    <h3>Plantillas</h3>
-    <select id="menuPlantillas">
-        <option value="">Seleccione…</option>
-        <option>Informe básico</option>
-        <option>Informe ampliado</option>
-        <option>Plantilla vacía</option>
-    </select>
-    <button onclick="insertarDesdeMenu('menuPlantillas')">Insertar</button>
-
-    <button onclick="geolocalizar()">Geolocalizar in situ</button>
-    <button onclick="exportarPDF()">Exportar PDF</button>
+    <button class="menu-btn" onclick="exportarPDF()">Exportar a PDF</button>
 </div>
 
-<!-- ENCABEZADO INSTITUCIONAL (TEXTO ANTIGUO) -->
-<div class="encabezado">
-    <div class="titulo">
-        <h1>INFORME PERICIAL DE INVESTIGACIÓN</h1>
-        <h1>Y RECONSTRUCCIÓN DE ACCIDENTE DE TRÁFICO</h1>
-        <h2>Perito Judicial: Manuel Pedro Martín Suazo</h2>
+<!-- Área principal -->
+<div id="main">
+
+    <h1>Informe Pericial</h1>
+
+    <!-- Botón de geolocalización -->
+    <button id="btnGeo" onclick="obtenerGeolocalizacion()" 
+        style="padding:10px 15px; background:#2e4a9e; color:white; border:none; border-radius:4px; cursor:pointer;">
+        Obtener Geolocalización
+    </button>
+
+    <p id="geoResultado" style="margin-top:10px; font-weight:bold; color:#1f3c88;"></p>
+
+    <!-- Editor TinyMCE -->
+    <textarea id="editor"></textarea>
+
+    <!-- Sección de fotos -->
+    <div class="media-section">
+        <h3>Fotografías</h3>
+        <p>Espacio reservado para insertar fotografías del accidente.</p>
     </div>
 
-    <div class="sello">
-        SELLO DEL PERITO
+    <!-- Sección de croquis -->
+    <div class="media-section">
+        <h3>Croquis</h3>
+        <p>Espacio reservado para insertar croquis del accidente.</p>
     </div>
+
 </div>
-
-<!-- ACCIONES RÁPIDAS -->
-<h2>Acciones rápidas</h2>
-
-<div class="acciones-rapidas">
-    <button onclick="abrirDireccion()">
-        <i class="fa-solid fa-map-location-dot"></i> Ver dirección
-    </button>
-
-    <button onclick="abrirCoordenadas()">
-        <i class="fa-solid fa-location-crosshairs"></i> Ver coordenadas
-    </button>
-
-    <button onclick="geolocalizar()">
-        <i class="fa-solid fa-location-dot"></i> Geolocalizar in situ
-    </button>
-
-    <button onclick="exportarPDF()">
-        <i class="fa-solid fa-file-pdf"></i> Exportar PDF
-    </button>
-</div>
-
-<!-- SISTEMA DE REFERENCIA -->
-<h2>Sistema de referencia</h2>
-
-<table class="tabla-tecnica">
-    <tr>
-        <th>Latitud</th>
-        <td class="latitud">39.569600</td>
-    </tr>
-    <tr>
-        <th>Longitud</th>
-        <td class="longitud">2.650200</td>
-    </tr>
-    <tr>
-        <th>Dirección</th>
-        <td class="direccion-accidente">Calle Ejemplo 123, Palma</td>
-    </tr>
-</table>
-
-<!-- CROQUIS -->
-<div class="espacio-croquis">
-    <p><b>ESPACIO PARA CROQUIS / FOTOGRAFÍAS</b></p>
-    <input type="file" id="selectorImagen6" accept="image/*" onchange="insertarImagenEnEditor('selectorImagen6')" style="margin-top:10px;">
-    ESPACIO RESERVADO PARA CROQUIS
-</div>
-
-<!-- EDITOR DEL INFORME CON CONTENIDO ANTIGUO -->
-<h2>Redacción del informe</h2>
-
-<textarea id="editor">
-<p><b>Referencia del informe:</b> {{REFERENCIA}}</p>
-
-<p><b>Perito Judicial:</b> Manuel Pedro Martín Suazo</p>
-<p><b>Localidad:</b> Llucmajor, Illes Balears</p>
-<p><b>Fecha:</b> <span contenteditable="true">__/__/____</span></p>
-<p><b>N.º de expediente:</b> <span contenteditable="true"></span></p>
-
-<hr>
-
-<h1>Objeto del informe</h1>
-<p contenteditable="true">Descripción del propósito del informe pericial solicitado.</p>
-
-<h1>Documentación analizada</h1>
-<ul>
-    <li><span contenteditable="true">Atestado policial</span></li>
-    <li><span contenteditable="true">Declaraciones de implicados</span></li>
-    <li><span contenteditable="true">Informes médicos</span></li>
-    <li><span contenteditable="true">Reportaje fotográfico</span></li>
-</ul>
-
-<h1>Metodología empleada</h1>
-<p contenteditable="true">
-Se han aplicado técnicas de investigación y reconstrucción de accidentes de tráfico basadas en normativa UNE, análisis de huellas, dinámica vehicular, estudio de daños y correlación mecánica.
-</p>
-
-<h1>Descripción del lugar del accidente</h1>
-
-<h2>Dirección del accidente</h2>
-<p>Dirección: <span class="direccion-accidente" contenteditable="true">Calle Ejemplo 123, Palma</span></p>
-
-<h2>Coordenadas del accidente</h2>
-<p>Latitud: <span class="latitud" contenteditable="true">39.569600</span></p>
-<p>Longitud: <span class="longitud" contenteditable="true">2.650200</span></p>
-
-<h2>Tipo de vía</h2>
-<p contenteditable="true"></p>
-
-<h2>Trazado</h2>
-<p contenteditable="true"></p>
-
-<h2>Señalización</h2>
-<p contenteditable="true"></p>
-
-<h2>Visibilidad</h2>
-<p contenteditable="true"></p>
-
-<h2>Estado del pavimento</h2>
-<p contenteditable="true"></p>
-
-<h2>Condiciones ambientales</h2>
-<p contenteditable="true"></p>
-
-<h1>Vehículos implicados</h1>
-
-<h2>Vehículo A</h2>
-<table class="tabla-tecnica">
-<tr><th>Parámetro</th><th>Valor</th><th>Unidad</th><th>Observaciones</th></tr>
-<tr><td>Marca</td><td contenteditable="true"></td><td>—</td><td contenteditable="true"></td></tr>
-<tr><td>Modelo</td><td contenteditable="true"></td><td>—</td><td contenteditable="true"></td></tr>
-<tr><td>Matrícula</td><td contenteditable="true"></td><td>—</td><td contenteditable="true"></td></tr>
-<tr><td>Daños</td><td contenteditable="true"></td><td>—</td><td contenteditable="true"></td></tr>
-<tr><td>Posición final</td><td contenteditable="true"></td><td>—</td><td contenteditable="true"></td></tr>
-</table>
-
-<h2>Vehículo B</h2>
-<p contenteditable="true">(Añadir tabla si procede)</p>
-
-<h1>Análisis técnico del siniestro</h1>
-
-<p contenteditable="true">
-Descripción detallada del análisis técnico, dinámica del accidente, correlación de daños, estudio de huellas, velocidades estimadas, trayectoria de vehículos, etc.
-</p>
-
-<h1>Reconstrucción del accidente</h1>
-
-<p contenteditable="true">
-Descripción detallada de la reconstrucción del accidente, fases del siniestro, maniobras previas, punto de conflicto, posiciones finales, etc.
-</p>
-</textarea>
-
-<!-- PIE DE PÁGINA ACTUALIZADO -->
-<div class="pie-pagina">
-    Perito Judicial: Manuel Pedro Martín Suazo – Nº 03478
-</div>
-
-<div class="pie-logo">
-    <img src="logo.png" alt="Logo" width="120">
-</div>
-
-<!-- SCRIPTS DEL EDITOR -->
-<script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
-
-<script>
+<<script>
+/* ============================
+   CONFIGURACIÓN DE TINYMCE
+   ============================ */
 tinymce.init({
     selector: '#editor',
-    height: 600,
+    height: 500,
     menubar: true,
     plugins: 'lists table image code',
-    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | table | image | code'
+    toolbar: 'undo redo | bold italic underline | bullist numlist | table | image | code',
+    branding: false,
+    setup: function (editor) {
+        window.editor = editor; // Hacemos accesible el editor globalmente
+    }
 });
 
-// Inserta el valor seleccionado de un menú en el editor
-function insertarDesdeMenu(idMenu) {
-    const sel = document.getElementById(idMenu);
-    if (!sel) return;
-    const texto = sel.value || sel.options[sel.selectedIndex].text;
-    if (!texto || texto === 'Seleccione…') return;
-    if (tinymce.activeEditor) {
-        tinymce.activeEditor.insertContent(texto + ' ');
-    }
+
+/* ============================
+   FUNCIONES PARA INSERTAR TEXTO LARGO
+   (Cada botón añade contenido al final)
+   ============================ */
+
+function insertarTipoInforme() {
+    if (!window.editor) return alert("El editor aún no está listo.");
+    window.editor.insertContent(plantillaTipoInforme);
 }
 
-// Inserta imagen desde input de archivo en el editor
-function insertarImagenEnEditor(inputId) {
-    const input = document.getElementById(inputId);
-    if (!input || !input.files || !input.files[0]) return;
-
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const src = e.target.result;
-        if (tinymce.activeEditor) {
-            tinymce.activeEditor.insertContent('<img src="' + src + '" style="max-width:100%; height:auto;">');
-        }
-    };
-    reader.readAsDataURL(file);
-}
-</script>
-
-<!-- EXPORTAR PDF -->
-<script>
-function exportarPDF() {
-    const elemento = document.body;
-    const opciones = {
-        margin: 10,
-        filename: 'informe_pericial.pdf',
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opciones).from(elemento).save();
-}
-</script>
-
-<!-- GOOGLE MAPS -->
-<script>
-function abrirDireccion() {
-    const direccion = document.querySelector(".direccion-accidente").innerText.trim();
-    if (!direccion || direccion === "—") {
-        alert("No hay dirección disponible.");
-        return;
-    }
-    const url = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(direccion);
-    window.open(url, "_blank");
+function insertarTipoAccidente() {
+    if (!window.editor) return alert("El editor aún no está listo.");
+    window.editor.insertContent(plantillaTipoAccidente);
 }
 
-function abrirCoordenadas() {
-    const lat = document.querySelector(".latitud").innerText.trim();
-    const lon = document.querySelector(".longitud").innerText.trim();
-
-    if (!lat || !lon || lat === "—" || lon === "—") {
-        alert("No hay coordenadas disponibles.");
-        return;
-    }
-
-    const url = `https://www.google.com/maps?q=${lat},${lon}`;
-    window.open(url, "_blank");
+function insertarVehiculoA() {
+    if (!window.editor) return alert("El editor aún no está listo.");
+    window.editor.insertContent(plantillaVehiculoA);
 }
 
-function geolocalizar() {
+function insertarVehiculoB() {
+    if (!window.editor) return alert("El editor aún no está listo.");
+    window.editor.insertContent(plantillaVehiculoB);
+}
+
+function insertarCondicionesVia() {
+    if (!window.editor) return alert("El editor aún no está listo.");
+    window.editor.insertContent(plantillaCondicionesVia);
+}
+
+function insertarEstadoPavimento() {
+    if (!window.editor) return alert("El editor aún no está listo.");
+    window.editor.insertContent(plantillaEstadoPavimento);
+}
+
+function insertarVisibilidad() {
+    if (!window.editor) return alert("El editor aún no está listo.");
+    window.editor.insertContent(plantillaVisibilidad);
+}
+
+function insertarSenalizacion() {
+    if (!window.editor) return alert("El editor aún no está listo.");
+    window.editor.insertContent(plantillaSenalizacion);
+}
+
+
+/* ============================
+   GEOLOCALIZACIÓN
+   ============================ */
+
+function obtenerGeolocalizacion() {
     if (!navigator.geolocation) {
-        alert("La geolocalización no está soportada en este dispositivo.");
+        document.getElementById("geoResultado").innerText = "La geolocalización no está soportada en este navegador.";
         return;
     }
 
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-        const lat = pos.coords.latitude.toFixed(6);
-        const lon = pos.coords.longitude.toFixed(6);
+    navigator.geolocation.getCurrentPosition(
+        function (pos) {
+            const lat = pos.coords.latitude.toFixed(6);
+            const lon = pos.coords.longitude.toFixed(6);
+            document.getElementById("geoResultado").innerText =
+                "Ubicación obtenida: Latitud " + lat + ", Longitud " + lon;
 
-        document.querySelectorAll(".latitud").forEach(e => e.innerText = lat);
-        document.querySelectorAll(".longitud").forEach(e => e.innerText = lon);
-
-        try {
-            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-            const resp = await fetch(url);
-            const data = await resp.json();
-
-            if (data && data.display_name) {
-                document.querySelectorAll(".direccion-accidente").forEach(e => e.innerText = data.display_name);
-            } else {
-                document.querySelectorAll(".direccion-accidente").forEach(e => e.innerText = "Dirección no disponible");
+            if (window.editor) {
+                window.editor.insertContent(
+                    `<p><strong>Geolocalización del accidente:</strong> Latitud ${lat}, Longitud ${lon}</p>`
+                );
             }
-        } catch (e) {
-            document.querySelectorAll(".direccion-accidente").forEach(e => e.innerText = "Dirección no disponible");
+        },
+        function (err) {
+            document.getElementById("geoResultado").innerText = "Error al obtener la ubicación.";
         }
-
-        alert("Geolocalización insertada correctamente.");
-    },
-    () => {
-        alert("No se pudo obtener la ubicación.");
-    });
+    );
 }
+
+
+/* ============================
+   EXPORTAR A PDF
+   ============================ */
+
+function exportarPDF() {
+    alert("Función de exportar a PDF pendiente de integrar con jsPDF o html2pdf.");
+}
+</script>
+
+<!-- Pie de página institucional -->
+<footer>
+    Informe pericial elaborado conforme a los criterios técnicos y metodológicos aplicables.
+    <br>
+    © 2024 — Perito Judicial en Investigación y Reconstrucción de Accidentes de Tráfico
+</footer>
+
+<script>
+/* ============================================================
+   PLANTILLA 1 — TIPO DE INFORME
+   ============================================================ */
+const plantillaTipoInforme = `
+<h2>Tipo de Informe</h2>
+<p><strong>Descripción general:</strong></p>
+<p>El presente documento constituye un informe pericial en materia de investigación y reconstrucción de accidentes de tráfico, elaborado conforme a los criterios técnicos, metodológicos y normativos aplicables.</p>
+
+<p><strong>Objeto del informe:</strong></p>
+<ul>
+    <li>Determinación de la dinámica del accidente.</li>
+    <li>Análisis de los factores concurrentes.</li>
+    <li>Valoración técnica de daños y posiciones finales.</li>
+</ul>
+
+<p><strong>Observaciones:</strong></p>
+<p>[Añadir observaciones específicas del caso]</p>
+<hr>
+`;
+
+
+/* ============================================================
+   PLANTILLA 2 — TIPO DE ACCIDENTE
+   ============================================================ */
+const plantillaTipoAccidente = `
+<h2>Tipo de Accidente</h2>
+<p><strong>Clasificación del accidente:</strong></p>
+<p>[Colisión frontal / lateral / alcance / salida de vía / atropello / vuelco / otro]</p>
+
+<p><strong>Descripción detallada:</strong></p>
+<p>[Describir la secuencia previa, el momento del impacto y la fase posterior]</p>
+
+<p><strong>Factores concurrentes:</strong></p>
+<ul>
+    <li>[Factor 1]</li>
+    <li>[Factor 2]</li>
+    <li>[Factor 3]</li>
+</ul>
+
+<p><strong>Observaciones:</strong></p>
+<p>[Añadir detalles relevantes]</p>
+<hr>
+`;
+
+
+/* ============================================================
+   PLANTILLA 3 — VEHÍCULO A
+   ============================================================ */
+const plantillaVehiculoA = `
+<h2>Vehículo A</h2>
+<p><strong>Datos identificativos:</strong></p>
+<ul>
+    <li>Marca y modelo: [Indicar]</li>
+    <li>Matrícula: [Indicar]</li>
+    <li>Conductor: [Indicar]</li>
+</ul>
+
+<p><strong>Daños observados:</strong></p>
+<p>[Describir daños en frontal, lateral, trasera, bajos, etc.]</p>
+
+<p><strong>Posición final:</strong></p>
+<p>[Describir ubicación final respecto a la vía]</p>
+
+<p><strong>Observaciones:</strong></p>
+<p>[Añadir información relevante]</p>
+<hr>
+`;
+
+
+/* ============================================================
+   PLANTILLA 4 — VEHÍCULO B
+   ============================================================ */
+const plantillaVehiculoB = `
+<h2>Vehículo B</h2>
+<p><strong>Datos identificativos:</strong></p>
+<ul>
+    <li>Marca y modelo: [Indicar]</li>
+    <li>Matrícula: [Indicar]</li>
+    <li>Conductor: [Indicar]</li>
+</ul>
+
+<p><strong>Daños observados:</strong></p>
+<p>[Describir daños en frontal, lateral, trasera, bajos, etc.]</p>
+
+<p><strong>Posición final:</strong></p>
+<p>[Describir ubicación final respecto a la vía]</p>
+
+<p><strong>Observaciones:</strong></p>
+<p>[Añadir información relevante]</p>
+<hr>
+`;
+
+
+/* ============================================================
+   PLANTILLA 5 — CONDICIONES DE LA VÍA
+   ============================================================ */
+const plantillaCondicionesVia = `
+<h2>Condiciones de la Vía</h2>
+<p><strong>Características geométricas:</strong></p>
+<ul>
+    <li>Tipo de vía: [Urbana / Interurbana / Autovía / Carretera convencional]</li>
+    <li>Número de carriles: [Indicar]</li>
+    <li>Sentido de circulación: [Indicar]</li>
+</ul>
+
+<p><strong>Estado general:</strong></p>
+<p>[Describir anchura, arcén, señalización horizontal, elementos de contención, etc.]</p>
+
+<p><strong>Observaciones:</strong></p>
+<p>[Añadir detalles relevantes]</p>
+<hr>
+`;
+
+
+/* ============================================================
+   PLANTILLA 6 — ESTADO DEL PAVIMENTO
+   ============================================================ */
+const plantillaEstadoPavimento = `
+<h2>Estado del Pavimento</h2>
+<p><strong>Condición superficial:</strong></p>
+<ul>
+    <li>Seco / Húmedo / Mojado / Deslizante</li>
+    <li>Presencia de gravilla, arena, aceite u otros elementos</li>
+</ul>
+
+<p><strong>Descripción técnica:</strong></p>
+<p>[Describir desgaste, grietas, baches, irregularidades, etc.]</p>
+
+<p><strong>Observaciones:</strong></p>
+<p>[Añadir información relevante]</p>
+<hr>
+`;
+
+
+/* ============================================================
+   PLANTILLA 7 — VISIBILIDAD
+   ============================================================ */
+const plantillaVisibilidad = `
+<h2>Visibilidad</h2>
+<p><strong>Condiciones ambientales:</strong></p>
+<ul>
+    <li>Día / Noche</li>
+    <li>Climatología: [Despejado / Lluvia / Niebla / Viento / Otros]</li>
+</ul>
+
+<p><strong>Factores que afectan a la visibilidad:</strong></p>
+<p>[Describir iluminación, sombras, obstáculos visuales, etc.]</p>
+
+<p><strong>Observaciones:</strong></p>
+<p>[Añadir detalles relevantes]</p>
+<hr>
+`;
+
+
+/* ============================================================
+   PLANTILLA 8 — SEÑALIZACIÓN QUE AFECTA AL ACCIDENTE
+   ============================================================ */
+const plantillaSenalizacion = `
+<h2>Señalización que Afecta al Accidente</h2>
+<p><strong>Señalización vertical:</strong></p>
+<p>[Describir señales presentes, su visibilidad y estado]</p>
+
+<p><strong>Señalización horizontal:</strong></p>
+<p>[Describir marcas viales, su estado y legibilidad]</p>
+
+<p><strong>Otros elementos:</strong></p>
+<ul>
+    <li>Semáforos</li>
+    <li>Paneles informativos</li>
+    <li>Balizamiento</li>
+</ul>
+
+<p><strong>Observaciones:</strong></p>
+<p>[Añadir detalles relevantes]</p>
+<hr>
+`;
 </script>
 
 </body>
